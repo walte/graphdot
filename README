@@ -1,0 +1,8 @@
+
+command:
+dot -Tpng -O XXX.dot
+
+References:
+http://www.graphviz.org/Documentation.php
+http://blog.csdn.net/occupy8/article/details/14450453
+
