@@ -1,0 +1,19 @@
+digraph G {      
+node[shape=record]     
+{rank=same;Conext;Strategy}  
+Context[label="{Context| +strategy : Strategy\l| +contextInterface()\l}"]      
+Strategy[ label="{Strategy|\l|+algorithmInterface()\l}"]      
+ca[label="{ConcreteStrategyA|\l+algorithmInterface()\l}"]      
+cb[label="{ConcreteStrategyB|\l+algorithmInterface()\l}"]      
+cc[label="{ConcreteStrategyC|\l+algorithmInterface()\l}"]      
+
+edge[  
+arrowhead="odiamond", style="filled"  
+]  
+Strategy -> Context    
+
+edge[ arrowhead="onormal", style="filled"]  
+ca->Strategy     
+cb->Strategy    
+cc->Strategy   
+}  
