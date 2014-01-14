@@ -34,7 +34,7 @@ digraph example{
 	st_table_entry:next -> st_table_entry:head [style="dashed", color="forestgreen"];
 }
 */
-
+/*
 digraph v4l2_dot{
 	fontname = "Verdana";
 	fontsize = 10;
@@ -91,9 +91,9 @@ digraph v4l2_dot{
 	vdev_fops->adv7481_ioctl_desc[color="limegreen", style="dashed"];
 	//v4l2_int_device_register->adv7481_ioctl_desc[color="limegreen", style="dashed", weight=8];
 }
+*/
 
-
-//host side
+//host
 
 usb_register(usb_driver)->usb_register_driver->driver_register->driver.probe(usb_probe_interface)->usb_driver.probe(input_register_device)
 
@@ -117,6 +117,9 @@ usb_devio_init->register_chrdev_region("usb_device")(usbdev_file_operations)->
 usbdev_notify,
 USB_DEVICE_ADD:
 
+
+usb_hub_init->usb_register(&hub_driver)
+->kthread_run(hub_thread)
 
 //gadget side
 
