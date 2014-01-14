@@ -106,6 +106,7 @@ digraph fork_dot{
 
 	dup_task_struct->"tsk = alloc_task_struct()"
 	dup_task_struct->"ti = alloc_thread_info(tsk)"
+	dup_task_struct->"arch_dup_task_struct(tsk, orig)\n(*dst = *src)"
 	dup_task_struct->"tsk->stack = ti"[style="dashed"]
 	dup_task_struct->setup_thread_stack[label="current->orig"]
 
