@@ -94,7 +94,7 @@ digraph v4l2_dot{
 */
 
 //host
-
+/*
 usb_register(usb_driver)->usb_register_driver->driver_register->driver.probe(usb_probe_interface)->usb_driver.probe(input_register_device)
 
 
@@ -120,7 +120,7 @@ USB_DEVICE_ADD:
 
 usb_hub_init->usb_register(&hub_driver)
 ->kthread_run(hub_thread)
-
+*/
 //gadget side
 
 
