@@ -101,8 +101,8 @@ struct sched_rt_entity rt|..|\
 struct mm_struct *mm, *active_mm|..|\
 pid_t pid\n\
 pid_t tgid|..|\
-<s_task_tree>struct task_struct *real_parent\nstruct task_struct *parent\nstruct list_head children\nstruct list_head sibling|\
-<s_thread_group>struct task_struct *group_leader\nstruct pid_link pids[PIDTYPE_MAX]\nstruct list_head thread_group|..\
+<s_task_tree>struct task_struct *real_parent\nstruct task_struct *parent\nstruct list_head children\nstruct list_head sibling\nstruct task_struct *group_leader|\
+<s_thread_group>struct pid_link pids[PIDTYPE_MAX]\nstruct list_head thread_group|..\
 }"];
 
 	thread_info:s_task_struct->task_struct:head; /*current_thread_info()->task, for_each_process(p)*/
