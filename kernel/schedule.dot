@@ -1,0 +1,100 @@
+/*
+node
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold, rounded, filled
+shape:
+*/
+
+/*
+edge
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold 
+shape: 
+*/
+
+/*
+rankdir: TB BT LR RL
+*/
+
+digraph schecule_dot{
+	fontname = "Verdana";
+	fontsize = 10;
+	rankdir=TB;
+	node [fontname = "Verdana", fontsize = 10, color="skyblue"];
+	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+
+	schedule->"rq = cpu_rq(cpu)"
+
+	schedule->"prev = rq->curr"
+
+	schedule->"prev->state = TASK_RUNNING OR \ndeactivate_task(rq, prev, 1)"
+
+	schedule->"prev->sched_class->put_prev_task(rq, prev)"->update_curr
+	"prev->sched_class->put_prev_task(rq, prev)"->enqueue_entity
+	schedule->"next = pick_next_task(rq, prev)"->__pick_next_entity
+	
+	schedule->"sched_info_switch(prev, next)"
+	schedule->"rq->curr = next"
+	schedule->"context_switch(rq, prev, next)"
+
+	update_curr->"u64 now = rq_of(cfs_rq)->clock"
+	update_curr->"delta_exec = (unsigned long)(now - curr->exec_start)"
+	update_curr->"__update_curr(cfs_rq, curr, delta_exec)"->__update_curr
+	update_curr->"curr->exec_start = now"
+
+	__update_curr->"curr->sum_exec_runtime += delta_exec"
+	__update_curr->"schedstat_add(cfs_rq, exec_clock, delta_exec)"
+	__update_curr->"delta_exec_weighted = calc_delta_fair(delta_exec, curr)"
+	__update_curr->"curr->vruntime += delta_exec_weighted"
+	__update_curr->"update_min_vruntime(cfs_rq)"
+
+	__pick_next_entity->"struct rb_node *left = cfs_rq->rb_leftmost"
+	__pick_next_entity->"return rb_entry(left, struct sched_entity, run_node)"
+
+	enqueue_entity->"update_curr(cfs_rq)"
+	enqueue_entity->"__enqueue_entity(cfs_rq, se)"
+}
+
+//static inline s64 entity_key(struct cfs_rq *cfs_rq, struct sched_entity *se)
+//{
+//	return se->vruntime - cfs_rq->min_vruntime;
+//}
+//
+//static void __enqueue_entity(struct cfs_rq *cfs_rq, struct sched_entity *se)
+//{
+//	struct rb_node **link = &cfs_rq->tasks_timeline.rb_node;
+//	struct rb_node *parent = NULL;
+//	struct sched_entity *entry;
+//	s64 key = entity_key(cfs_rq, se);
+//	int leftmost = 1;
+//	
+//	/*
+//	 * Find the right place in the rbtree:
+//	 */
+//	while (*link) {
+//		parent = *link;
+//		entry = rb_entry(parent, struct sched_entity, run_node);
+//	
+//		/*
+//	 	* We dont care about collisions. Nodes with
+//	 	* the same key stay together.
+//	 	*/
+//		if (key < entity_key(cfs_rq, entry)) {
+//			link = &parent->rb_left;
+//		} else {
+//			link = &parent->rb_right;
+//			leftmost = 0;
+//		}
+//	}
+//
+//	/*
+//	 * Maintain a cache of leftmost tree entries (it is frequently
+//	 * used):
+//	 */
+//	if (leftmost)
+//		cfs_rq->rb_leftmost = &se->run_node;
+//	
+//	rb_link_node(&se->run_node, parent, link);
+//	rb_insert_color(&se->run_node, &cfs_rq->tasks_timeline);
+//}
+

@@ -1,0 +1,63 @@
+/*
+node
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold, rounded, filled
+shape: box, polygon, ellipse, plaintext
+*/
+
+/*
+edge
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold
+*/
+
+/*
+rankdir: TB BT LR RL
+*/
+
+digraph task{
+	fontname = "Verdana";
+	fontsize = 10;
+	rankdir=TB;
+
+	node [fontname = "Verdana", fontsize = 10, color="skyblue", shape="record"];
+	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+
+	rq[label="{\
+<head>struct rq\{\}|\
+spinlock_t lock|\
+unsigned long nr_running|..|\
+struct cfs_rq cfs\n\
+struct rt_rq rt|..|\
+struct task_struct *curr, *idle|..\
+}"];
+
+	cfs_rq[label="{\
+<head>struct cfs_rq\{\}|\
+struct load_weight load\n\
+unsigned long nr_running|\
+u64 exec_clock\n\
+u64 min_vruntime|\
+struct rb_root tasks_timeline\n\
+struct rb_node *rb_leftmost|\
+struct list_head tasks\n\
+struct list_head *balance_iterator|\
+struct sched_entity *curr, *next, *last|..\
+}"];
+
+	sched_entity[label="{\
+<head>struct sched_entity\{\}|\
+struct load_weight load|\
+struct rb_node run_node\n\
+struct list_head group_node|\
+unsigned int on_rq|\
+u64 exec_start\n\
+u64 sum_exec_runtime\n\
+u64 vruntime\n\
+u64 prev_sum_exec_runtime|..|\
+struct sched_entity *parent\n\
+struct cfs_rq *cfs_rq\n\
+struct cfs_rq *my_q|..\
+ }"];
+
+}
