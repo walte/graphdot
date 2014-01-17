@@ -30,7 +30,7 @@ digraph schecule_dot{
 	schedule->"prev->state = TASK_RUNNING OR \ndeactivate_task(rq, prev, 1)"
 
 	schedule->"prev->sched_class->put_prev_task(rq, prev)"->update_curr
-	"prev->sched_class->put_prev_task(rq, prev)"->enqueue_entity
+	"prev->sched_class->put_prev_task(rq, prev)"->enqueue_entity[color="limegreen", style="dashed"]
 	schedule->"next = pick_next_task(rq, prev)"->__pick_next_entity
 	
 	schedule->"sched_info_switch(prev, next)"
