@@ -1,0 +1,52 @@
+/*
+node
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold, rounded, filled
+shape:
+*/
+
+/*
+edge
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold 
+shape: 
+*/
+
+/*
+rankdir: TB BT LR RL
+*/
+
+digraph start_kernel_dot{
+	fontname = "Verdana";
+	fontsize = 10;
+	rankdir=TB;
+	node [fontname = "Verdana", fontsize = 10, color="skyblue"];
+	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+
+	start_kernel->setup_arch
+	start_kernel->rest_init
+	
+	setup_arch->paging_init
+
+	rest_init->kernel_thread_kernel_init
+	rest_init->kernel_thread_kthreadd
+	rest_init->cpu_idle
+
+	kernel_thread_kernel_init[label="kernel_thread(kernel_init)"]
+	kernel_thread_kernel_init->kernel_init[color="limegreen", style="dashed"]
+
+	kernel_thread_kthreadd[label="kernel_thread(kthreadd)"];
+	kernel_thread_kthreadd->"kernel threads(kthread_create)"[color="limegreen", style="dashed"]
+	
+	kernel_init->do_basic_setup
+	kernel_init->init_post
+
+	do_basic_setup->do_initcalls
+
+	init_post->"run_init_process(/init)"
+
+	do_initcalls->do_one_initcall
+
+	do_one_initcall[label="do_one_initcall(*fn)\nfor (fn = __early_initcall_end;\n fn < __initcall_end; fn++)"]
+}
+

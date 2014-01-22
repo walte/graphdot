@@ -1,0 +1,83 @@
+/*
+node
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold, rounded, filled
+shape:
+*/
+
+/*
+edge
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold 
+shape: 
+*/
+
+/*
+rankdir: TB BT LR RL
+*/
+
+digraph hibernation_dot{
+	fontname = "Verdana";
+	fontsize = 10;
+	rankdir=TB;
+	node [fontname = "Verdana", fontsize = 10, color="skyblue"];
+	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+
+	//kernel resume start
+	start_kernel->rest_init
+	rest_init->kernel_thread_kernel_init
+	kernel_thread_kernel_init[label="kernel_thread(kernel_init)"]
+	kernel_thread_kernel_init->kernel_init[color="limegreen", style="dashed"]
+	kernel_init->do_basic_setup
+	do_basic_setup->do_initcalls
+	do_initcalls->do_one_initcall
+	do_one_initcall[label="do_one_initcall(*fn)\nfor (fn = __early_initcall_end;\n fn < __initcall_end; fn++)"]
+	do_one_initcall->late_resume
+	late_resume[label="late_resume(software_resume)"]
+	late_resume->software_resume[color="limegreen", style="dashed", constraint="false"]
+
+	//software_resume->pm_prepare_console
+	//software_resume->pm_notifier_call_chain
+	//software_resume->usermodehelper_disable
+	//software_resume->create_basic_memory_bitmaps
+	software_resume->swsusp_check
+	software_resume->prepare_processes
+	software_resume->swsusp_read
+	software_resume->hibernation_restore
+
+	swsusp_read->load_image
+
+	hibernation_restore->dpm_suspend_start
+	hibernation_restore->resume_target_kernel
+
+	dpm_suspend_start->dpm_prepare
+	dpm_suspend_start->dpm_suspend
+
+	resume_target_kernel->swsusp_arch_resume
+
+	swsusp_arch_resume->image_hibernation[color="limegreen", style="dashed", constraint="false"]
+
+	//resume
+	image_hibernation->create_image[color="limegreen", style="dashed"]
+	image_hibernation->hibernation_snapshot[color="limegreen", style="dashed"] 
+	image_hibernation->hibernation[color="limegreen", style="dashed"]
+
+	create_image->restore_processor_state
+	create_image->syscore_resume
+	create_image->local_irq_enable
+	create_image->enable_nonboot_cpus
+	create_image->platform_finish
+	create_image->dpm_resume_noirq
+
+	hibernation_snapshot->dpm_resume
+	hibernation_snapshot->resume_console
+	hibernation_snapshot->dpm_complete
+	hibernation_snapshot->platform_end
+	hibernation_snapshot->platform_recover
+
+	hibernation->thaw_processes
+	hibernation->free_basic_memory_bitmaps
+	hibernation->usermodehelper_enable
+	hibernation->pm_notifier_call_chain
+	hibernation->pm_restore_console
+}
