@@ -23,41 +23,41 @@ digraph task{
 	node [fontname = "Verdana", fontsize = 10, color="skyblue", shape="record"];
 	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
 
-	rq[label="{\
-<head>struct rq\{\}|\
-spinlock_t lock|\
-unsigned long nr_running|..|\
-struct cfs_rq cfs\n\
-struct rt_rq rt|..|\
-struct task_struct *curr, *idle|..\
-}"];
+	rq[label="{<head>struct rq\
+|spinlock_t lock\l\
+|unsigned long nr_running\l\
+|..\
+|struct cfs_rq cfs\l\
+struct rt_rq rt\l\
+|..\
+|struct task_struct *curr, *idle\l\
+|..}"];
 
-	cfs_rq[label="{\
-<head>struct cfs_rq\{\}|\
-struct load_weight load\n\
-unsigned long nr_running|\
-u64 exec_clock\n\
-u64 min_vruntime|\
-struct rb_root tasks_timeline\n\
-struct rb_node *rb_leftmost|\
-struct list_head tasks\n\
-struct list_head *balance_iterator|\
-struct sched_entity *curr, *next, *last|..\
-}"];
+	cfs_rq[label="{<head>struct cfs_rq\
+|struct load_weight load\l\
+unsigned long nr_running\l\
+|u64 exec_clock\l\
+u64 min_vruntime\l\
+|struct rb_root tasks_timeline\l\
+struct rb_node *rb_leftmost\l\
+|struct list_head tasks\l\
+struct list_head *balance_iterator\l\
+|struct sched_entity *curr, *next, *last\l\
+|..}"];
 
-	sched_entity[label="{\
-<head>struct sched_entity\{\}|\
-struct load_weight load|\
-struct rb_node run_node\n\
-struct list_head group_node|\
-unsigned int on_rq|\
-u64 exec_start\n\
-u64 sum_exec_runtime\n\
-u64 vruntime\n\
-u64 prev_sum_exec_runtime|..|\
-struct sched_entity *parent\n\
-struct cfs_rq *cfs_rq\n\
-struct cfs_rq *my_q|..\
- }"];
+	sched_entity[label="{<head>struct sched_entity\
+|struct load_weight load\l\
+|struct rb_node run_node\l\
+struct list_head group_node\l\
+|unsigned int on_rq\l\
+|u64 exec_start\l\
+u64 sum_exec_runtim\l\
+u64 vruntime\l\
+u64 prev_sum_exec_runtime\l\
+|..\
+|struct sched_entity *parent\l\
+struct cfs_rq *cfs_rq\l\
+struct cfs_rq *my_q\l\
+|..}"];
 
 }
