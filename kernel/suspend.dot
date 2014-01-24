@@ -1,0 +1,68 @@
+/*
+node
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold, rounded, filled
+shape:
+*/
+
+/*
+edge
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold 
+shape: 
+*/
+
+/*
+rankdir: TB BT LR RL
+*/
+
+digraph hibernation_dot{
+	fontname = "Verdana";
+	fontsize = 10;
+	rankdir=TB;
+	node [fontname = "Verdana", fontsize = 10, color="skyblue"];
+	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+
+
+	pm_suspend->enter_state
+
+	enter_state->sys_sync
+	suspend_prepare
+	suspend_test
+	suspend_devices_and_enter
+	suspend_finish
+
+
+	//hibernate
+	enter_state->hibernation
+	
+	//hibernation->pm_prepare_console
+	//hibernation->pm_notifier_call_chain
+	//hibernation->usermodehelper_disable
+	//hibernation->create_basic_memory_bitmaps
+	//hibernation->sys_sync
+	hibernation->prepare_processes
+	hibernation->hibernation_snapshot
+	hibernation->swsusp_write
+	hibernation->power_down
+	hibernation->"in_suspend = 0"
+
+	hibernation_snapshot->dpm_prepare
+	hibernation_snapshot->hibernate_preallocate_memory
+	hibernation_snapshot->suspend_console
+	hibernation_snapshot->pm_restrict_gfp_mask
+	hibernation_snapshot->dpm_suspend
+	hibernation_snapshot->create_image
+	//hibernation_snapshot->dpm_resume
+	//hibernation_snapshot->resume_console
+	//hibernation_snapshot->dpm_complete
+	//hibernation_snapshot->platform_end
+	//hibernation_snapshot->platform_recover
+
+	create_image->dpm_suspend_noirq
+	create_image->syscore_suspend
+	create_image->save_processor_state
+	create_image->swsusp_arch_suspend
+
+	swsusp_arch_suspend->image_hibernation[color="limegreen", style="dashed"]
+}

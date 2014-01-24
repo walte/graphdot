@@ -32,7 +32,7 @@ digraph task{
 __u32 cpu\l\
 __u32 cpu_domain\l\
 |<s_cpu_context>struct cpu_context_save cpu_context\l\
-..}"];
+|..}"];
 
 	task_struct[label="{<head>struct task_struct\
 |<s_state>volatile long state\l\
