@@ -37,6 +37,19 @@ digraph ipu_dot{
 	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
 
 	//
+	platform_data_ipu[label="mx6_ipuv3_data_entry_single(MX6Q, 1, SZ_4M, mx6q_ipuv3_init, mx6q_ipuv3_pg)"];
+	struct_ipu_soc_ipu[label="struct ipu_soc *ipu = ipu_array\[pdev->id\]"];
+
+	ipu_probe -> struct_ipu_soc_ipu;
+	ipu_probe -> init -> platform_data_ipu;
+	ipu_probe -> "request_irq(ipu_sync_irq_handler)";
+	ipu_probe -> "request_irq(ipu_err_irq_handler)";
+	ipu_probe -> ioremap;
+ 	ipu_probe -> ipu_reset;
+ 	ipu_probe -> ipu_disp_init;
+ 	ipu_probe -> register_ipu_device;
+
+/*
 	videodev_init[label="videodev_init\n(v4l2-dev.c)"];
 	register_chrdev_region[label="register_chrdev_region(dev,256,\"video4linux\")"];
 	class_register[label="class_register(&video_class)"];
@@ -93,5 +106,6 @@ digraph ipu_dot{
 	//
 	init_camera_stuct->ipu_enc_select[color="limegreen", style="dotted"]
 	vdev_fops->ipu_enc_select[color="limegreen", style="dashed", constraint="false"]
+	*/
 }
 

@@ -1,0 +1,97 @@
+/*
+node
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold, rounded, filled
+shape:
+*/
+
+/*
+edge
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold 
+shape: 
+*/
+
+/*
+rankdir: TB BT LR RL
+*/
+
+//ipuv3
+//drivers/mxc/ipu3/ipu_common.c
+
+//mipi
+//drivers/mxc/mipi/mxc_mipi_csi2.c
+
+//fb
+//drivers/video/mxc/mxc_ipuv3_fb.c
+
+//v4l2 input, output
+//drivers/media/video/mxc/capture/mxc_v4l2_capture.c
+//drivers/media/video/mxc/output/mxc_vout.c
+
+digraph fb_dot{
+	fontname = "Verdana";
+	fontsize = 10;
+	rankdir=TB;
+	node [fontname = "Verdana", fontsize = 10, color="skyblue"];
+	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+
+	fb_info[shape="record" label="{<head>struct fb_info\
+|..\
+|struct fb_ops *fbops\l\
+|char __iomem *screen_base\l\
+|..\
+|struct fb_var_screeninfo var\l\
+__u32 xres, yres\l\
+__u32 xres_virtual yres_virtual\l\
+__u32 bits_per_pixel\l\
+|..\
+|struct fb_fix_screeninfo fix\l\
+unsigned long smem_start\l\
+__u32 smem_len\l\
+__u32 line_length\l\
+|..}"];
+
+
+	//
+	mxcfb_probe -> "fbi = mxcfb_init_fbinfo(&pdev->dev, &mxcfb_ops)";
+	mxcfb_probe -> "mxcfbi = (struct mxcfb_info *)fbi->par";
+	mxcfb_probe -> "mxcfbi->fbi = fbi";
+	mxcfb_probe -> mxcfb_option_setup;
+	mxcfb_probe -> mxcfb_dispdrv_init;
+	mxcfb_probe -> mxcfbi_ipu;
+	mxcfb_probe -> mxcfbi_ipu_ch;
+	mxcfb_probe -> mxcfb_register;
+	mxcfb_probe -> mxcfb_setup_overlay;
+
+	mxcfb_dispdrv_init[label="mxcfb_dispdrv_init(ipu=0,di=0)"]
+	mxcfbi_ipu[label="mxcfbi->ipu = ipu_get_soc(mxcfbi->ipu_id)"];
+	mxcfbi_ipu_ch[label="mxcfbi->ipu_ch = MEM_BG_SYNC"];
+
+	//
+	mxcfb_dispdrv_init -> ldb_disp_init;
+	
+	//
+	mxcfb_register -> "strcpy(fbi->fix.id, bg0_id)"
+	mxcfb_register -> "mxcfb_check_var(&fbi->var, fbi)"
+	mxcfb_register -> "mxcfb_set_fix(fbi)"
+	mxcfb_register -> fb_set_var;
+	mxcfb_register -> "register_framebuffer(fbi)"
+
+	fb_set_var[label="ret = fb_set_var(fbi, &fbi->var)"]
+
+	fb_set_var -> mxcfb_set_par
+
+	mxcfb_set_par -> mxcfb_map_video_memory -> "(fbi->fix.smem_len=XX);fbi->screen_base = dma_alloc_writecombine"
+	mxcfb_set_par -> _setup_disp_channel1 -> ipu_init_channel
+	mxcfb_set_par -> _setup_disp_channel2 -> ipu_init_channel_buffer
+
+	mxcfb_setup_overlay -> "ovfbi = mxcfb_init_fbinfo(&pdev->dev, &mxcfb_ops)"
+	mxcfb_setup_overlay -> "mxcfbi_fg = (struct mxcfb_info *)ovfbi->par"
+	mxcfb_setup_overlay -> "mxcfbi_fg->ipu = ipu_get_soc(mxcfbi_bg->ipu_id)"
+	mxcfb_setup_overlay -> "mxcfbi_fg->ipu_ch = MEM_FG_SYNC"
+	mxcfb_setup_overlay -> "mxcfbi_fg->ipu_di = -1"
+	mxcfb_setup_overlay -> "ovfbi->var.xres = 240;ovfbi->var.yres = 320"
+	mxcfb_setup_overlay -> "mxcfb_register(ovfbi)"
+}
+
