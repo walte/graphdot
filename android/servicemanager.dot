@@ -1,0 +1,131 @@
+/*
+node
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold, rounded, filled
+shape:
+*/
+
+/*
+edge
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold 
+shape: 
+*/
+
+/*
+rankdir: TB BT LR RL
+*/
+
+digraph servicemanager_dot{
+	fontname = "Verdana";
+	fontsize = 10;
+	rankdir=TB;
+	node [fontname = "Verdana", fontsize = 10, color="skyblue"];
+	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+
+	main->binder_open
+	main->binder_become_context_manager
+	main->binder_loop
+	
+	sys_fork[label="sys_fork\n(SIGCHLD)"];
+	sys_vfork[label="sys_fork\n(clone_flags)"];
+	sys_clone[label="sys_fork\n(CLONE_VFORK|\nCLONE_VM|\nSIGCHLD)"];
+
+	sys_fork->do_fork
+	sys_vfork->do_fork
+	sys_clone->do_fork
+
+	//do_fork()
+	//1.
+	//p = copy_process(clone_flags, stack_start, regs, stack_size,
+	//				 child_tidptr, NULL, trace);
+	//2.
+	//if (unlikely(clone_flags & CLONE_STOPPED))
+	//		__set_task_state(p, TASK_STOPPED);
+	//	else 
+	//		wake_up_new_task(p, clone_flags);
+	//3.
+	//if (clone_flags & CLONE_VFORK)
+	//		wait_for_completion(&vfork);
+	do_fork->copy_process
+	do_fork->wake_up_new_task
+	do_fork->"if (CLONE_VFORK)\n(wait_for_completion(&vfork))"
+
+	//copy_process()
+	//1. 
+	//p = dup_task_struct(current);
+	//2.
+	//sched_fork(p, clone_flags)
+	//3.
+	//if ((retval = audit_alloc(p)))
+	//if ((retval = copy_semundo(clone_flags, p)))
+	//if ((retval = copy_files(clone_flags, p)))
+	//if ((retval = copy_fs(clone_flags, p)))
+	//if ((retval = copy_sighand(clone_flags, p)))
+	//if ((retval = copy_signal(clone_flags, p)))
+	//if ((retval = copy_mm(clone_flags, p)))
+	//if ((retval = copy_namespaces(clone_flags, p)))
+	//if ((retval = copy_io(clone_flags, p)))
+	//4.
+	//retval = copy_thread(0, clone_flags, stack_start, stack_size, p, regs);
+	//5.
+	//pid = alloc_pid(p->nsproxy->pid_ns);
+	//p->pid = pid_nr(pid);
+	//p->tgid = p->pid;
+	//if (clone_flags & CLONE_THREAD)
+	//	p->tgid = current->tgid;
+
+	//6.
+	///* CLONE_PARENT re-uses the old parent */
+	//if (clone_flags & (CLONE_PARENT|CLONE_THREAD)) {
+	//	p->real_parent = current->real_parent;
+	//	p->parent_exec_id = current->parent_exec_id;
+	//} else {
+	//	p->real_parent = current; (!!!)
+	//	p->parent_exec_id = current->self_exec_id;
+	//}
+	//7. thread
+	//p->group_leader = p;
+	//if (clone_flags & CLONE_THREAD)
+	//	p->group_leader = current->group_leader;
+	//	list_add_tail_rcu(&p->thread_group, &p->group_leader->thread_group);
+	//8.
+	//list_add_tail(&p->sibling, &p->real_parent->children);
+	//tracehook_finish_clone(p, clone_flags, trace);(!!!child->parent = child->real_parent;)
+	//9. task
+	//if (thread_group_leader(p)) 
+	//	list_add_tail_rcu(&p->tasks, &init_task.tasks)
+	
+	copy_process->dup_task_struct
+	copy_process->sched_fork
+	copy_process->"copy_files,copy_fs..."
+	copy_process->copy_thread
+	copy_process->alloc_pid
+	//copy_process->"if (clone_flags & CLONE_THREAD)\nlist_add_tail_rcu(&p->thread_group, &p->group_leader->thread_group);"
+	//copy_process->"list_add_tail(&p->sibling, &p->real_parent->children)"
+	//copy_process->"if (thread_group_leader(p))\nlist_add_tail_rcu(&p->tasks, &init_task.tasks)"
+
+	//dup_task_struct()
+	dup_task_struct[label="dup_task_struct\n(current)"];
+
+	dup_task_struct->"tsk = alloc_task_struct()"
+	dup_task_struct->"ti = alloc_thread_info(tsk)"
+	dup_task_struct->"arch_dup_task_struct(tsk, orig)\n(*dst = *src)"
+	dup_task_struct->"tsk->stack = ti"[style="dashed"]
+	dup_task_struct->setup_thread_stack[label="current->orig"]
+
+	//setup_thread_stack()
+	setup_thread_stack[label="setup_thread_stack\n(tsk, orig)"];
+
+	setup_thread_stack->"*task_thread_info(p) = *task_thread_info(org)"
+	setup_thread_stack->"task_thread_info(p)->task = p"[style="dashed"]
+
+	//kernel thread releated
+	node [fontname = "Verdana", fontsize = 10, color="black", style="dashed"];
+	{rank=same;kthread_create kthreadd create_kthread kernel_thread do_fork}
+	kthread_create[label="kthread_create\nkthread_run"];
+	
+	kthread_create->kthreadd[color="limegreen", style="dashed"]
+	kthreadd->create_kthread->kernel_thread->do_fork
+}
+
