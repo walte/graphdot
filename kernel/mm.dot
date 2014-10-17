@@ -1,0 +1,137 @@
+/*
+node
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold, rounded, filled
+shape:
+*/
+
+/*
+edge
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold 
+shape: 
+*/
+
+/*
+rankdir: TB BT LR RL
+*/
+
+/*
+digraph example{
+	fontname = "Verdana";
+	fontsize = 10;
+	rankdir=TB;
+
+	node [fontname = "Verdana", fontsize = 10, color="skyblue", shape="record"];
+	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+
+	st_hash_type [label="{<head>st_hash_type|(*compare)|(*hash)}"];
+	st_table_entry [label="{<head>st_table_entry|hash|key|record|<next>next}"];
+	st_table [label="{st_table|<type>type|num_bins|num_entries|<bins>bins}"];
+
+	st_table:bins -> st_table_entry:head;
+	st_table:type -> st_hash_type:head;
+	st_table_entry:next -> st_table_entry:head [style="dashed", color="forestgreen"];
+}
+*/
+/*
+digraph v4l2_dot{
+	fontname = "Verdana";
+	fontsize = 10;
+	rankdir=TB;
+	node [fontname = "Verdana", fontsize = 10, color="skyblue"];
+	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+
+	//
+	videodev_init[label="videodev_init\n(v4l2-dev.c)"];
+	register_chrdev_region[label="register_chrdev_region(dev,256,\"video4linux\")"];
+	class_register[label="class_register(&video_class)"];
+
+	videodev_init -> register_chrdev_region;
+	videodev_init -> class_register;
+	register_chrdev_region->cdev_add[color="limegreen", style="dashed"];
+
+	//
+	video_register_device;
+	cdev_add[label="cdev_add()\n(vdev->cdev->ops=&v4l2_fops)"];
+	device_register[label="device_register(&vdev->dev)"];
+	vdev_fops[label="vdev->fops\n(mxc_v4l_fops)"]
+
+	video_register_device->cdev_add;
+	video_register_device->device_register;
+	cdev_add->vdev_fops[color="limegreen", style="dashed"];
+
+	//
+	camera_init[label="camera_init\n(mxc_v4l2_capture.c)"];
+	platform_driver_register[label="platform_driver_register(&mxc_v4l2_driver)"];
+	mxc_v4l2_probe[label="mxc_v4l2_probe\n(cam_data *cam)"];
+	init_camera_stuct[label="init_camera_stuct\n(self.u.master=mxc_v4l2_master)"];
+	v4l2_int_device_register_cap[label="v4l2_int_device_register(cam->self)\n(struct v4l2_int_device *self)"];
+	video_register_device[label="video_register_device(cam->video_dev)"];
+	v4l2_int_device_try_attach_all[label="v4l2_int_device_try_attach_all\n(m->u.master->attach(s))"];
+	mxc_v4l2_master_attach[label="mxc_v4l2_master_attach\n(cam->sensor=adv7481_int_device)"];
+
+	ipu_enc_select[label="ipu_enc_select\n(prp_enc_select/csi_enc_select)"]
+
+	camera_init->platform_driver_register
+	platform_driver_register->mxc_v4l2_probe
+	mxc_v4l2_probe->init_camera_stuct
+	mxc_v4l2_probe->v4l2_int_device_register_cap
+	//mxc_v4l2_probe->video_register_device[weight=8]
+	mxc_v4l2_probe->video_register_device
+
+	//ad7481
+	adv7481_probe
+	v4l2_int_device_register[label="v4l2_int_device_register(&adv7481_int_device)"]
+	adv7481_ioctl_desc[label="adv7481_ioctl_desc\n(cam->sonsor->ioctls)"]
+
+	adv7481_probe->v4l2_int_device_register
+	v4l2_int_device_register->v4l2_int_device_try_attach_all
+	v4l2_int_device_try_attach_all->mxc_v4l2_master_attach
+
+	v4l2_int_device_register->v4l2_int_device_register_cap[color="limegreen", style="dashed", dir="both"]
+
+	//
+	vdev_fops->adv7481_ioctl_desc[color="limegreen", style="dashed"];
+	//v4l2_int_device_register->adv7481_ioctl_desc[color="limegreen", style="dashed", weith=8, constraint="false"];
+	mxc_v4l2_master_attach->adv7481_ioctl_desc[color="limegreen", style="dashed", weith=8, constraint="false"];
+
+	//
+	init_camera_stuct->ipu_enc_select[color="limegreen", style="dotted"]
+	vdev_fops->ipu_enc_select[color="limegreen", style="dashed", constraint="false"]
+}
+*/
+
+digraph mm_dot{
+	fontname = "Verdana";
+	fontsize = 10;
+	rankdir=TB;
+	node [fontname = "Verdana", fontsize = 10, color="skyblue"];
+	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+
+	//struct bootmem_dat
+
+	start_kernel->setup_arch
+	start_kernel->build_all_zonelists
+
+	setup_arch->paging_init
+
+	paging_init->build_mem_type_table
+	paging_init->sanity_check_meminfo
+	paging_init->prepare_page_table
+	paging_init->bootm_init
+	paging_init->devicemaps_init
+
+	//meminfo.nr
+/*
+	struct page;
+	struct zone;
+
+	struct mm_struct;
+	struct vm_area_struct;
+*/
+}
+
+
+//pdaa201332010000080147
+

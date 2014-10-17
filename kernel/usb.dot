@@ -1,0 +1,168 @@
+/*
+node
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold, rounded, filled
+shape:
+*/
+
+/*
+edge
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold 
+shape: 
+*/
+
+/*
+rankdir: TB BT LR RL
+*/
+
+/*
+digraph example{
+	fontname = "Verdana";
+	fontsize = 10;
+	rankdir=TB;
+
+	node [fontname = "Verdana", fontsize = 10, color="skyblue", shape="record"];
+	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+
+	st_hash_type [label="{<head>st_hash_type|(*compare)|(*hash)}"];
+	st_table_entry [label="{<head>st_table_entry|hash|key|record|<next>next}"];
+	st_table [label="{st_table|<type>type|num_bins|num_entries|<bins>bins}"];
+
+	st_table:bins -> st_table_entry:head;
+	st_table:type -> st_hash_type:head;
+	st_table_entry:next -> st_table_entry:head [style="dashed", color="forestgreen"];
+}
+*/
+/*
+digraph v4l2_dot{
+	fontname = "Verdana";
+	fontsize = 10;
+	rankdir=TB;
+	node [fontname = "Verdana", fontsize = 10, color="skyblue"];
+	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+
+	//
+	videodev_init[label="videodev_init\n(v4l2-dev.c)"];
+	register_chrdev_region[label="register_chrdev_region(dev,256,\"video4linux\")"];
+	class_register[label="class_register(&video_class)"];
+
+	videodev_init -> register_chrdev_region;
+	videodev_init -> class_register;
+	register_chrdev_region->cdev_add[color="limegreen", style="dashed"];
+
+	//
+	video_register_device;
+	cdev_add[label="cdev_add()\n(vdev->cdev->ops=&v4l2_fops)"];
+	device_register[label="device_register(&vdev->dev)"];
+	vdev_fops[label="vdev->fops\n(mxc_v4l_fops)"]
+
+	video_register_device->cdev_add;
+	video_register_device->device_register;
+	cdev_add->vdev_fops[color="limegreen", style="dashed"];
+
+	//
+	camera_init[label="camera_init\n(mxc_v4l2_capture.c)"];
+	platform_driver_register[label="platform_driver_register(&mxc_v4l2_driver)"];
+	mxc_v4l2_probe[label="mxc_v4l2_probe\n(cam_data *cam)"];
+	init_camera_stuct[label="init_camera_stuct\n(self.u.master=mxc_v4l2_master)"];
+	v4l2_int_device_register_cap[label="v4l2_int_device_register(cam->self)\n(struct v4l2_int_device *self)"];
+	video_register_device[label="video_register_device(cam->video_dev)"];
+	v4l2_int_device_try_attach_all[label="v4l2_int_device_try_attach_all\n(m->u.master->attach(s))"];
+	mxc_v4l2_master_attach[label="mxc_v4l2_master_attach\n(cam->sensor=adv7481_int_device)"];
+
+	camera_init->platform_driver_register
+	platform_driver_register->mxc_v4l2_probe
+	mxc_v4l2_probe->init_camera_stuct
+	mxc_v4l2_probe->v4l2_int_device_register_cap
+	//mxc_v4l2_probe->video_register_device[weight=8]
+	mxc_v4l2_probe->video_register_device
+
+	//ad7481
+	adv7481_probe
+	v4l2_int_device_register[label="v4l2_int_device_register(&adv7481_int_device)"]
+	adv7481_ioctl_desc[label="adv7481_ioctl_desc\n(cam->sonsor->ioctls)"]
+
+	adv7481_probe->v4l2_int_device_register
+	v4l2_int_device_register->v4l2_int_device_try_attach_all
+	v4l2_int_device_try_attach_all->mxc_v4l2_master_attach
+
+	//
+	vdev_fops->adv7481_ioctl_desc[color="limegreen", style="dashed"];
+	//v4l2_int_device_register->adv7481_ioctl_desc[color="limegreen", style="dashed", weight=8];
+}
+*/
+
+//host
+
+usb_register(usb_driver)->
+usb_register_driver->
+driver_register->
+driver.probe(usb_probe_interface)->
+usb_driver.probe(input_register_device)
+
+
+hub_thread->
+hub_events->
+hub_port_connect_change->
+usb_alloc_dev
+usb_new_device->
+usb_enumerate_device
+device_add
+usb_device_mach
+generic_probe
+usb_choose_configuration
+usb_set_configuration
+device_add(&intf->dev)
+usb_device_mach
+usb_porbe_interface
+driver->probe(intf, id)
+
+dummy_hcd_driver->dummy_hcd_probe->usb_add_hcd
+
+dummy_udc_driver->dummy_udc_probe->dum->gadget.ops(&dummy_ops)
+
+android_dev.functions->usb_composite_probe->usb_gadget_probe_driver->bind(composite_bind)->composite_gadget_bind
+
+function
+
+
+usb_devio_init->register_chrdev_region("usb_device")(usbdev_file_operations)->
+
+
+usbdev_notify,
+USB_DEVICE_ADD:
+
+
+usb_hub_init->usb_register(&hub_driver)
+->kthread_run(hub_thread)
+
+//gadget side
+
+usb_gadget
+usb_gadget_driver
+
+usb_composite_dev
+usb_composite_driver
+
+usb_composite_probe(&zero_driver, zero_bind);
+usb_gadget_probe_driver
+composite_bind(struct usb_gadget *gadget)
+
+	cdev->gadget = gadget;
+		set_gadget_data(gadget, cdev);
+	cdev->req = usb_ep_alloc_request(gadget->ep0, GFP_KERNEL);
+
+
+zero_bind
+sourcesink_add
+
+usb_add_config(cdev, &sourcesink_driver, sourcesink_bind_config);
+
+sourcesink_bind_config
+
+usb_add_function(c, &ss->function);
+
+function->bind(config, function);
+sourcesink_bind
+
