@@ -1,6 +1,7 @@
 
 command:
 dot -Tpng -O XXX.dot
+dot -Tsvg -O XXX.dot
 
 References:
 http://www.graphviz.org/Documentation.php
