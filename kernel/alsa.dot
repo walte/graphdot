@@ -1,0 +1,14 @@
+
+
+
+
+subsys_initcall(alsa_sound_init)
+
+tef6638_i2c_probe
+
+
+
+
+tef6638_codec_probe
+
+tef6638_codec_probeme

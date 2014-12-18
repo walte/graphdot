@@ -1,0 +1,331 @@
+/*
+node
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold, rounded, filled
+shape:
+*/
+
+/*
+edge
+color: naveblue, skyblue, red, red4, crimson, forestgreen, limegreen
+style: solid, dotted, dashed, bold 
+shape: 
+*/
+
+/*
+rankdir: TB BT LR RL
+*/
+
+/*
+digraph example{
+	fontname = "Verdana";
+	fontsize = 10;
+	rankdir=TB;
+
+	node [fontname = "Verdana", fontsize = 10, color="skyblue", shape="record"];
+	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+
+	st_hash_type [label="{<head>st_hash_type|(*compare)|(*hash)}"];
+	st_table_entry [label="{<head>st_table_entry|hash|key|record|<next>next}"];
+	st_table [label="{st_table|<type>type|num_bins|num_entries|<bins>bins}"];
+
+	st_table:bins -> st_table_entry:head;
+	st_table:type -> st_hash_type:head;
+	st_table_entry:next -> st_table_entry:head [style="dashed", color="forestgreen"];
+}
+*/
+/*
+digraph v4l2_dot{
+	fontname = "Verdana";
+	fontsize = 10;
+	rankdir=TB;
+	node [fontname = "Verdana", fontsize = 10, color="skyblue"];
+	edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+
+	//
+	videodev_init[label="videodev_init\n(v4l2-dev.c)"];
+	register_chrdev_region[label="register_chrdev_region(dev,256,\"video4linux\")"];
+	class_register[label="class_register(&video_class)"];
+
+	videodev_init -> register_chrdev_region;
+	videodev_init -> class_register;
+	register_chrdev_region->cdev_add[color="limegreen", style="dashed"];
+
+	//
+	video_register_device;
+	cdev_add[label="cdev_add()\n(vdev->cdev->ops=&v4l2_fops)"];
+	device_register[label="device_register(&vdev->dev)"];
+	vdev_fops[label="vdev->fops\n(mxc_v4l_fops)"]
+
+	video_register_device->cdev_add;
+	video_register_device->device_register;
+	cdev_add->vdev_fops[color="limegreen", style="dashed"];
+
+	//
+	camera_init[label="camera_init\n(mxc_v4l2_capture.c)"];
+	platform_driver_register[label="platform_driver_register(&mxc_v4l2_driver)"];
+	mxc_v4l2_probe[label="mxc_v4l2_probe\n(cam_data *cam)"];
+	init_camera_stuct[label="init_camera_stuct\n(self.u.master=mxc_v4l2_master)"];
+	v4l2_int_device_register_cap[label="v4l2_int_device_register(cam->self)\n(struct v4l2_int_device *self)"];
+	video_register_device[label="video_register_device(cam->video_dev)"];
+	v4l2_int_device_try_attach_all[label="v4l2_int_device_try_attach_all\n(m->u.master->attach(s))"];
+	mxc_v4l2_master_attach[label="mxc_v4l2_master_attach\n(cam->sensor=adv7481_int_device)"];
+
+	camera_init->platform_driver_register
+	platform_driver_register->mxc_v4l2_probe
+	mxc_v4l2_probe->init_camera_stuct
+	mxc_v4l2_probe->v4l2_int_device_register_cap
+	//mxc_v4l2_probe->video_register_device[weight=8]
+	mxc_v4l2_probe->video_register_device
+
+	//ad7481
+	adv7481_probe
+	v4l2_int_device_register[label="v4l2_int_device_register(&adv7481_int_device)"]
+	adv7481_ioctl_desc[label="adv7481_ioctl_desc\n(cam->sonsor->ioctls)"]
+
+	adv7481_probe->v4l2_int_device_register
+	v4l2_int_device_register->v4l2_int_device_try_attach_all
+	v4l2_int_device_try_attach_all->mxc_v4l2_master_attach
+
+	//
+	vdev_fops->adv7481_ioctl_desc[color="limegreen", style="dashed"];
+	//v4l2_int_device_register->adv7481_ioctl_desc[color="limegreen", style="dashed", weight=8];
+}
+*/
+
+ak7757_i2c_probe->ak7757_register
+
+ak7757_register
+snd_soc_register_codec(codec);
+ret = snd_soc_register_dai(&ak7757_dai[0]);
+ret = snd_soc_register_dai(&ak7757_dai[1]);
+
+
+static struct snd_soc_dai_link imx_3stack_dai[2] = {
+	{
+		.name = "ak7757_master",
+		.stream_name = "AK7757_MASTER",
+		.codec_dai = &ak7757_dai[0],
+		.ops = &imx_3stack_surround_ops,
+	},
+	{
+		.name = "ak7757_second",
+		.stream_name = "AK7757_SECOND",
+		.codec_dai = &ak7757_dai[1],
+		.ops = &imx_3stack_surround_ops,
+	},
+};
+imx_3stack_dai[i].cpu_dai = &imx_esai_dai[2];
+imx_3stack_dai[i].cpu_dai->dev = &pdev->dev;
+
+static struct snd_soc_card snd_soc_card_imx_3stack = {
+	.name = "imx-3stack",
+	.platform = &imx_soc_platform,
+	.dai_link = &imx_3stack_dai,
+	.num_links = 2,
+	.remove = imx_3stack_card_remove,
+};
+
+static struct snd_soc_device imx_3stack_snd_devdata = {
+	.card = &snd_soc_card_imx_3stack,
+	.codec_dev = &soc_codec_dev_ak7757,
+};
+
+imx_3stack_snd_device = platform_device_alloc("soc-audio", 1);
+platform_set_drvdata(imx_3stack_snd_device, &imx_3stack_snd_devdata);
+platform_device_register(imx_3stack_snd_device);
+
+static int soc_probe(struct platform_device *pdev)
+struct snd_soc_device *socdev = platform_get_drvdata(pdev);
+struct snd_soc_card *card = socdev->card;
+ret = snd_soc_register_card(card);
+
+static void snd_soc_instantiate_card(struct snd_soc_card *card)
+ret = cpu_dai->probe(pdev, cpu_dai);
+ret = codec_dev->probe(pdev);
+ret = snd_card_register(codec->card);
+
+static int imx_esai_probe(struct platform_device *pdev, struct snd_soc_dai *dai)
+
+static int ak7757_probe(struct platform_device *pdev)
+ret = snd_soc_new_pcms(socdev, SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1);
+snd_soc_add_controls(codec, ak7757_snd_controls,
+                         ARRAY_SIZE(ak7757_snd_controls));
+
+int snd_soc_new_pcms(struct snd_soc_device *socdev, int idx, const char *xid)
+/* register a sound card */
+ret = snd_card_create(idx, xid, codec->owner, 0, &codec->card);
+ret = soc_new_pcm(socdev, &card->dai_link[i], i);
+
+
+int snd_card_create(int idx, const char *xid,
+		    struct module *module, int extra_size,
+		    struct snd_card **card_ret)
+/* the control interface cannot be accessed from the user space until */
+/* snd_cards_bitmask and snd_cards are set with snd_card_register */
+err = snd_ctl_create(card);
+
+/*
+ * create control core:
+ * called from init.c
+ */
+int snd_ctl_create(struct snd_card *card)
+{
+	static struct snd_device_ops ops = {
+		.dev_free = snd_ctl_dev_free,
+		.dev_register =	snd_ctl_dev_register,
+		.dev_disconnect = snd_ctl_dev_disconnect,
+	};
+
+	if (snd_BUG_ON(!card))
+		return -ENXIO;
+	return snd_device_new(card, SNDRV_DEV_CONTROL, card, &ops);
+}
+
+snd_card_register()
+snd_device_register_all(card)
+dev->ops->dev_register(dev)
+/*
+ * registration of the control device
+ */
+static int snd_ctl_dev_register(struct snd_device *device)
+if ((err = snd_register_device(SNDRV_DEVICE_TYPE_CONTROL, card, -1,
+	&snd_ctl_f_ops, card, name)) < 0)
+
+static const struct file_operations snd_ctl_f_ops =
+{
+	.owner =	THIS_MODULE,
+	.read =		snd_ctl_read,
+	.open =		snd_ctl_open,
+	.release =	snd_ctl_release,
+	.llseek =	no_llseek,
+	.poll =		snd_ctl_poll,
+	.unlocked_ioctl =	snd_ctl_ioctl,
+	.compat_ioctl =	snd_ctl_ioctl_compat,
+	.fasync =	snd_ctl_fasync,
+};
+
+
+
+/* ASoC PCM operations */
+static struct snd_pcm_ops soc_pcm_ops = {
+	.open		= soc_pcm_open,
+	.close		= soc_codec_close,
+	.hw_params	= soc_pcm_hw_params,
+	.hw_free	= soc_pcm_hw_free,
+	.prepare	= soc_pcm_prepare,
+	.trigger	= soc_pcm_trigger,
+	.pointer	= soc_pcm_pointer,
+};
+
+/* create a new pcm */
+static int soc_new_pcm(struct snd_soc_device *socdev,
+	struct snd_soc_dai_link *dai_link, int num)
+
+	ret = snd_pcm_new(codec->card, new_name, codec->pcm_devs++, playback,
+		capture, &pcm);
+
+	dai_link->pcm = pcm;
+	pcm->private_data = rtd;
+	soc_pcm_ops.mmap = platform->pcm_ops->mmap;
+	soc_pcm_ops.ioctl = platform->pcm_ops->ioctl;
+	soc_pcm_ops.copy = platform->pcm_ops->copy;
+	soc_pcm_ops.silence = platform->pcm_ops->silence;
+	soc_pcm_ops.ack = platform->pcm_ops->ack;
+	soc_pcm_ops.page = platform->pcm_ops->page;
+
+	if (playback)
+		snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &soc_pcm_ops);
+
+	if (capture)
+		snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &soc_pcm_ops);
+
+struct snd_soc_platform imx_soc_platform = {
+	.name = "imx-audio",
+	.pcm_ops = &imx_pcm_ops,
+	.pcm_new = imx_pcm_new,
+	.pcm_free = imx_pcm_free_dma_buffers,
+};
+
+struct snd_pcm_ops imx_pcm_ops = {
+	.open = imx_pcm_open,
+	.close = imx_pcm_close,
+	.ioctl = snd_pcm_lib_ioctl,
+	.hw_params = imx_pcm_hw_params,
+	.hw_free = imx_pcm_hw_free,
+	.prepare = imx_pcm_prepare,
+	.trigger = imx_pcm_trigger,
+	.pointer = imx_pcm_pointer,
+	.mmap = imx_pcm_mmap,
+};
+
+
+snd_soc_add_controls(codec, ak7757_snd_controls,
+         ARRAY_SIZE(ak7757_snd_controls)); 
+err = snd_ctl_add(card, snd_soc_cnew(control, codec, NULL));
+
+struct snd_kcontrol *snd_soc_cnew(const struct snd_kcontrol_new *_template,
+	void *data, char *long_name)
+return snd_ctl_new1(&template, data);
+
+struct snd_kcontrol *snd_ctl_new1(const struct snd_kcontrol_new *ncontrol,
+	void *private_data)
+struct snd_kcontrol kctl;
+return snd_ctl_new(&kctl, access);
+
+int snd_ctl_add(struct snd_card *card, struct snd_kcontrol *kcontrol)
+list_add_tail(&kcontrol->list, &card->controls);
+
+
+static long snd_ctl_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+case SNDRV_CTL_IOCTL_ELEM_READ:
+	return snd_ctl_elem_read_user(card, argp);
+case SNDRV_CTL_IOCTL_ELEM_WRITE:
+	return snd_ctl_elem_write_user(ctl, argp);
+
+static int snd_ctl_elem_write_user(struct snd_ctl_file *file,
+				   struct snd_ctl_elem_value __user *_control)
+result = snd_ctl_elem_write(card, file, control)
+
+static int snd_ctl_elem_write(struct snd_card *card, struct snd_ctl_file *file,
+			      struct snd_ctl_elem_value *control)
+result = kctl->put(kctl, control);
+
+#define SOC_SINGLE_TLV(xname, reg, shift, max, invert, tlv_array) \
+{	.iface = SNDRV_CTL_ELEM_IFACE_MIXER, .name = xname, \
+	.access = SNDRV_CTL_ELEM_ACCESS_TLV_READ |\
+		 SNDRV_CTL_ELEM_ACCESS_READWRITE,\
+	.tlv.p = (tlv_array), \
+	.info = snd_soc_info_volsw, .get = snd_soc_get_volsw,\
+	.put = snd_soc_put_volsw, \
+	.private_value =  SOC_SINGLE_VALUE(reg, shift, max, invert) }
+
+int snd_soc_put_volsw(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
+{
+	struct soc_mixer_control *mc =
+		(struct soc_mixer_control *)kcontrol->private_value;
+	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+	unsigned int reg = mc->reg;
+	unsigned int shift = mc->shift;
+	unsigned int rshift = mc->rshift;
+	int max = mc->max;
+	unsigned int mask = (1 << fls(max)) - 1;
+	unsigned int invert = mc->invert;
+	unsigned int val, val2, val_mask;
+
+	val = (ucontrol->value.integer.value[0] & mask);
+	if (invert)
+		val = max - val;
+	val_mask = mask << shift;
+	val = val << shift;
+	if (shift != rshift) {
+		val2 = (ucontrol->value.integer.value[1] & mask);
+		if (invert)
+			val2 = max - val2;
+		val_mask |= mask << rshift;
+		val |= val2 << rshift;
+	}
+	return snd_soc_update_bits_locked(codec, reg, val_mask, val);
+}
+
